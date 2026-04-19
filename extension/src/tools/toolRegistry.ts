@@ -999,6 +999,476 @@ export function createToolRegistry(opts: { getStatus: () => BridgeStatusSnapshot
 				return asJsonText(result);
 			},
 		},
+		// ===== PCB Management Tools =====
+		{
+			name: 'jlc.dmt.pcb.create',
+			description: 'Create a new PCB document in the current project.',
+			inputSchema: { type: 'object', properties: { boardName: { type: 'string', description: 'Board name to associate the PCB with' } }, additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Pcb.createPcb(args.boardName);
+				return asJsonText({ ok: true, pcbUuid: r });
+			},
+		},
+		{
+			name: 'jlc.dmt.pcb.list',
+			description: 'List all PCBs in the current project.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).dmt_Pcb.getAllPcbsInfo();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.dmt.pcb.get',
+			description: 'Get detailed info for a specific PCB by UUID.',
+			inputSchema: { type: 'object', properties: { pcbUuid: { type: 'string' } }, required: ['pcbUuid'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Pcb.getPcbInfo(args.pcbUuid);
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.dmt.pcb.current',
+			description: 'Get info for the currently active PCB document.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).dmt_Pcb.getCurrentPcbInfo();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.dmt.pcb.delete',
+			description: 'Delete a PCB by UUID.',
+			inputSchema: { type: 'object', properties: { pcbUuid: { type: 'string' } }, required: ['pcbUuid'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Pcb.deletePcb(args.pcbUuid);
+				return asJsonText({ ok: r });
+			},
+		},
+		{
+			name: 'jlc.dmt.pcb.copy',
+			description: 'Copy an existing PCB.',
+			inputSchema: { type: 'object', properties: { pcbUuid: { type: 'string' }, boardName: { type: 'string' } }, required: ['pcbUuid'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Pcb.copyPcb(args.pcbUuid, args.boardName);
+				return asJsonText({ ok: true, newPcbUuid: r });
+			},
+		},
+
+		// ===== PCB Document Tools =====
+		{
+			name: 'jlc.pcb.import_changes',
+			description: 'Import schematic netlist changes into the PCB. This updates the PCB with any component or net changes from the schematic.',
+			inputSchema: { type: 'object', properties: { pcbUuid: { type: 'string', description: 'PCB UUID to import changes into' } }, additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_Document.importChanges(args.pcbUuid);
+				return asJsonText({ ok: r });
+			},
+		},
+		{
+			name: 'jlc.pcb.save',
+			description: 'Save the PCB document.',
+			inputSchema: { type: 'object', properties: { pcbUuid: { type: 'string' } }, required: ['pcbUuid'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_Document.save(args.pcbUuid);
+				return asJsonText({ ok: r });
+			},
+		},
+		{
+			name: 'jlc.pcb.zoom_to_board',
+			description: 'Zoom the PCB view to show the entire board outline.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_Document.zoomToBoardOutline();
+				return asJsonText({ ok: r });
+			},
+		},
+		{
+			name: 'jlc.pcb.navigate_to',
+			description: 'Navigate to specific coordinates in the PCB.',
+			inputSchema: { type: 'object', properties: { x: { type: 'number' }, y: { type: 'number' } }, required: ['x', 'y'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_Document.navigateToCoordinates(args.x, args.y);
+				return asJsonText({ ok: r });
+			},
+		},
+		{
+			name: 'jlc.pcb.get_at_point',
+			description: 'Get the primitive at a specific point in the PCB.',
+			inputSchema: { type: 'object', properties: { x: { type: 'number' }, y: { type: 'number' } }, required: ['x', 'y'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_Document.getPrimitiveAtPoint(args.x, args.y);
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.get_in_region',
+			description: 'Get all primitives within a rectangular region of the PCB.',
+			inputSchema: { type: 'object', properties: { left: { type: 'number' }, right: { type: 'number' }, top: { type: 'number' }, bottom: { type: 'number' } }, required: ['left', 'right', 'top', 'bottom'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_Document.getPrimitivesInRegion(args.left, args.right, args.top, args.bottom);
+				return asJsonText(r);
+			},
+		},
+
+		// ===== PCB Component Tools =====
+		{
+			name: 'jlc.pcb.component.list',
+			description: 'List all components on the PCB with their positions, rotations, and properties.',
+			inputSchema: { type: 'object', properties: { jsonSafe: { type: 'object', properties: { maxArrayLength: { type: 'number' }, maxStringLength: { type: 'number' } } } }, additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_PrimitiveComponent.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.component.get',
+			description: 'Get a specific PCB component by primitive ID.',
+			inputSchema: { type: 'object', properties: { primitiveId: { type: 'string' } }, required: ['primitiveId'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_PrimitiveComponent.get(args.primitiveId);
+				return asJsonText(r);
+			},
+		},
+
+		// ===== PCB Primitive Tools =====
+		{
+			name: 'jlc.pcb.pad.list',
+			description: 'List all pads on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitivePad.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.track.list',
+			description: 'List all tracks (traces) on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveTrack.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.via.list',
+			description: 'List all vias on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveVia.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.region.list',
+			description: 'List all regions (copper pours, keep-out areas) on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveRegion.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.string.list',
+			description: 'List all text strings on the PCB (silkscreen, etc).',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveString.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.dimension.list',
+			description: 'List all dimension annotations on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveDimension.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.line.list',
+			description: 'List all lines on the PCB (board outline, etc).',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveLine.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.arc.list',
+			description: 'List all arcs on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveArc.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.fill.list',
+			description: 'List all fills on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveFill.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.pour.list',
+			description: 'List all copper pours on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitivePour.getAll();
+				return asJsonText(r);
+			},
+		},
+
+		// ===== PCB DRC Tools =====
+		{
+			name: 'jlc.pcb.drc.check',
+			description: 'Run PCB Design Rule Check (DRC).',
+			inputSchema: { type: 'object', properties: { strict: { type: 'boolean', default: false }, includeVerbose: { type: 'boolean', default: false } }, additionalProperties: false },
+			run: async (args) => {
+				const strict = args.strict ?? false;
+				const verbose = args.includeVerbose ?? false;
+				const r = await (eda as any).pcb_Drc.check(strict, false, verbose);
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.drc.get_rules',
+			description: 'Get the current DRC rule configuration.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const name = await (eda as any).pcb_Drc.getCurrentRuleConfigurationName();
+				const rules = await (eda as any).pcb_Drc.getCurrentRuleConfiguration();
+				return asJsonText({ name, rules });
+			},
+		},
+		{
+			name: 'jlc.pcb.drc.list_rules',
+			description: 'List all available DRC rule configurations.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_Drc.getAllRuleConfigurations();
+				return asJsonText(r);
+			},
+		},
+
+		// ===== PCB Layer Tools =====
+		{
+			name: 'jlc.pcb.layer.list',
+			description: 'List all PCB layers.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_Layer.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.layer.get_visible',
+			description: 'Get visible layers in the PCB editor.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_Layer.getVisibleLayers();
+				return asJsonText(r);
+			},
+		},
+
+		// ===== PCB Net Tools =====
+		{
+			name: 'jlc.pcb.net.list',
+			description: 'List all nets in the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_Net.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.net.get',
+			description: 'Get info for a specific PCB net by name.',
+			inputSchema: { type: 'object', properties: { netName: { type: 'string' } }, required: ['netName'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_Net.get(args.netName);
+				return asJsonText(r);
+			},
+		},
+
+		// ===== PCB Select Tools =====
+		{
+			name: 'jlc.pcb.select.primitives',
+			description: 'Select PCB primitives by their IDs.',
+			inputSchema: { type: 'object', properties: { primitiveIds: { type: 'array', items: { type: 'string' } } }, required: ['primitiveIds'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_SelectControl.selectPrimitives(args.primitiveIds);
+				return asJsonText({ ok: r });
+			},
+		},
+		{
+			name: 'jlc.pcb.select.clear',
+			description: 'Clear the current PCB selection.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_SelectControl.clearSelection();
+				return asJsonText({ ok: r });
+			},
+		},
+
+		// ===== Project Tools =====
+		{
+			name: 'jlc.project.info',
+			description: 'Get current project information.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).dmt_Project.getCurrentProjectInfo();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.project.list',
+			description: 'List all project UUIDs.',
+			inputSchema: { type: 'object', properties: { teamUuid: { type: 'string' }, folderUuid: { type: 'string' } }, additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Project.getAllProjectsUuid(args.teamUuid, args.folderUuid);
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.project.open',
+			description: 'Open a project by UUID.',
+			inputSchema: { type: 'object', properties: { projectUuid: { type: 'string' } }, required: ['projectUuid'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Project.openProject(args.projectUuid);
+				return asJsonText({ ok: r });
+			},
+		},
+
+		// ===== Board Tools =====
+		{
+			name: 'jlc.dmt.board.list',
+			description: 'List all boards in the current project.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).dmt_Board.getAllBoardsInfo();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.dmt.board.create',
+			description: 'Create a new board (schematic+PCB pair).',
+			inputSchema: { type: 'object', properties: { schematicUuid: { type: 'string' }, pcbUuid: { type: 'string' } }, additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Board.createBoard(args.schematicUuid, args.pcbUuid);
+				return asJsonText({ ok: true, boardName: r });
+			},
+		},
+		{
+			name: 'jlc.dmt.board.get',
+			description: 'Get info for a specific board by name.',
+			inputSchema: { type: 'object', properties: { boardName: { type: 'string' } }, required: ['boardName'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Board.getBoardInfo(args.boardName);
+				return asJsonText(r);
+			},
+		},
+
+		// ===== Schematic Management Tools =====
+		{
+			name: 'jlc.dmt.schematic.list',
+			description: 'List all schematics in the current project.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).dmt_Schematic.getAllSchematicsInfo();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.dmt.schematic.pages',
+			description: 'List all schematic pages in the project.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).dmt_Schematic.getAllSchematicPagesInfo();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.dmt.schematic.create',
+			description: 'Create a new schematic in the project.',
+			inputSchema: { type: 'object', properties: { boardName: { type: 'string' } }, additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Schematic.createSchematic(args.boardName);
+				return asJsonText({ ok: true, schematicUuid: r });
+			},
+		},
+		{
+			name: 'jlc.dmt.schematic.create_page',
+			description: 'Create a new page in an existing schematic.',
+			inputSchema: { type: 'object', properties: { schematicUuid: { type: 'string' } }, required: ['schematicUuid'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_Schematic.createSchematicPage(args.schematicUuid);
+				return asJsonText({ ok: true, pageUuid: r });
+			},
+		},
+
+		// ===== Editor Tools =====
+		{
+			name: 'jlc.editor.open_document',
+			description: 'Open a document (schematic, PCB, etc) by its UUID.',
+			inputSchema: { type: 'object', properties: { documentUuid: { type: 'string' }, splitScreenId: { type: 'string' } }, required: ['documentUuid'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_EditorControl.openDocument(args.documentUuid, args.splitScreenId);
+				return asJsonText({ tabId: r });
+			},
+		},
+		{
+			name: 'jlc.editor.close_document',
+			description: 'Close a document tab by its tab ID.',
+			inputSchema: { type: 'object', properties: { tabId: { type: 'string' } }, required: ['tabId'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_EditorControl.closeDocument(args.tabId);
+				return asJsonText({ ok: r });
+			},
+		},
+		{
+			name: 'jlc.editor.current_document',
+			description: 'Get information about the currently active document.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).dmt_SelectControl.getCurrentDocumentInfo();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.editor.zoom_to_region',
+			description: 'Zoom the editor to a specific rectangular region.',
+			inputSchema: { type: 'object', properties: { left: { type: 'number' }, right: { type: 'number' }, top: { type: 'number' }, bottom: { type: 'number' }, tabId: { type: 'string' } }, required: ['left', 'right', 'top', 'bottom'], additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_EditorControl.zoomToRegion(args.left, args.right, args.top, args.bottom, args.tabId);
+				return asJsonText({ ok: r });
+			},
+		},
+		{
+			name: 'jlc.editor.zoom_to_all',
+			description: 'Zoom to show all primitives in the current document.',
+			inputSchema: { type: 'object', properties: { tabId: { type: 'string' } }, additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).dmt_EditorControl.zoomToAllPrimitives(args.tabId);
+				return asJsonText(r);
+			},
+		},
+
+		// ===== Environment Tools =====
+		{
+			name: 'jlc.env.info',
+			description: 'Get EDA environment information (version, platform, etc).',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).sys_Environment.getInfo();
+				return asJsonText(r);
+			},
+		},
+
 		{
 			name: 'jlc.schematic.verify_netlist',
 			description: 'Verify connectivity by reading SCH_Netlist.getNetlist() and checking expected (Net -> Ref.Pin) memberships.',
