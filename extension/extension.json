@@ -1,0 +1,59 @@
+{
+	"name": "easyeda-ai-bridge",
+	"uuid": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
+	"displayName": "EasyEDA AI Bridge",
+	"description": "通过AI Agent远程控制嘉立创EDA (Cloud Bridge by SundayDX)",
+	"version": "0.2.1",
+	"publisher": "local-dev",
+	"engines": {
+		"eda": "^3.0"
+	},
+	"license": "Apache-2.0",
+	"repository": {
+		"type": "extension-store",
+		"url": "https://github.com/XuF163/jlc-eda-mcp"
+	},
+	"categories": "Other",
+	"keywords": [
+		"MCP",
+		"Automation"
+	],
+	"images": {
+		"logo": "./images/logo.png"
+	},
+	"homepage": "https://github.com/XuF163/jlc-eda-mcp",
+	"bugs": "https://github.com/XuF163/jlc-eda-mcp/issues",
+	"activationEvents": {
+		"onStartupFinished": true
+	},
+	"entry": "./dist/index",
+	"dependentExtensions": {},
+	"headerMenus": {
+		"home": [
+			{
+				"id": "ai_bridge_home",
+				"title": "AI Bridge",
+				"menuItems": [
+					{ "id": "ab_status_home", "title": "连接状态", "registerFn": "mcpStatus" },
+					{ "id": "ab_pair_home", "title": "配对码", "registerFn": "mcpPairCode" },
+					{ "id": "ab_connect_home", "title": "连接", "registerFn": "mcpConnect" },
+					{ "id": "ab_disconnect_home", "title": "断开", "registerFn": "mcpDisconnect" },
+					{ "id": "ab_configure_home", "title": "配置", "registerFn": "mcpConfigure" }
+				]
+			}
+		],
+		"sch": [
+			{
+				"id": "ai_bridge_sch",
+				"title": "AI Bridge",
+				"menuItems": [
+					{ "id": "ab_status_sch", "title": "连接状态", "registerFn": "mcpStatus" },
+					{ "id": "ab_pair_sch", "title": "配对码", "registerFn": "mcpPairCode" },
+					{ "id": "ab_connect_sch", "title": "连接", "registerFn": "mcpConnect" },
+					{ "id": "ab_disconnect_sch", "title": "断开", "registerFn": "mcpDisconnect" },
+					{ "id": "ab_configure_sch", "title": "配置", "registerFn": "mcpConfigure" }
+				]
+			}
+		]
+	}
+}

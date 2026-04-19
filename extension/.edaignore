@@ -1,0 +1,25 @@
+/.git/
+/.husky/
+/.vscode/
+/build/
+/config/
+/coverage/
+/node_modules/
+/src/
+/.editorconfig
+/.eslintcache
+/.eslintrc.js
+/.gitattributes
+/.gitignore
+/.npmrc
+/.prettierignore
+/.prettierrc.js
+/package-lock.json
+/package.json
+/tsconfig.json
+debug.log
+
+# Keep the .eext minimal: exclude docs and markdown (except README.md)
+/docs/
+*.md
+!/README.md

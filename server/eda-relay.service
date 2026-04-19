@@ -1,0 +1,13 @@
+[Unit]
+Description=EDA WebSocket Relay Server v3
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/root/.nvm/versions/node/v24.14.0/bin/node /root/Projects/eda-relay/relay-v3.js
+Restart=on-failure
+RestartSec=5
+Environment=PORT=9100
+
+[Install]
+WantedBy=multi-user.target
