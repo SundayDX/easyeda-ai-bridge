@@ -1468,6 +1468,34 @@ export function createToolRegistry(opts: { getStatus: () => BridgeStatusSnapshot
 				return asJsonText(r);
 			},
 		},
+		// ===== PCB Test Tools (v0.2.2) =====
+		{
+			name: 'jlc.dmt.pcb.list',
+			description: 'List all PCBs in the current project.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).dmt_Pcb.getAllPcbsInfo();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.component.list',
+			description: 'List all components on the PCB.',
+			inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+			run: async () => {
+				const r = await (eda as any).pcb_PrimitiveComponent.getAll();
+				return asJsonText(r);
+			},
+		},
+		{
+			name: 'jlc.pcb.import_changes',
+			description: 'Import schematic netlist changes into PCB.',
+			inputSchema: { type: 'object', properties: { pcbUuid: { type: 'string' } }, additionalProperties: false },
+			run: async (args) => {
+				const r = await (eda as any).pcb_Document.importChanges(args.pcbUuid);
+				return asJsonText({ ok: r });
+			},
+		},
 
 		{
 			name: 'jlc.schematic.verify_netlist',

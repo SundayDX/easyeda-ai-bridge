@@ -167,3 +167,8 @@ ingress:
 ## License
 
 Apache-2.0
+
+## 更新机制
+
+扩展通过 GitHub Releases 自动检查更新。`repository.type: "github"` 指向本仓库，EDA 会自动检测新版本。
+
